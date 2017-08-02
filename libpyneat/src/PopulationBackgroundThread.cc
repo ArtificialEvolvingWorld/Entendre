@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "make_unique.hh"
+
 PopulationBackgroundThread::PopulationBackgroundThread(Population pop)
   : current_pop(pop), stop_worker(false), num_generations(0) {
 
@@ -43,7 +45,7 @@ void PopulationBackgroundThread::worker_loop() {
 
       // One copy for us to keep, one copy to throw up to the GUI.
       std::lock_guard<std::mutex> lock(output_queue_mutex);
-      output_queue.push(std::make_unique<Population>(current_pop));
+      output_queue.push(make_unique<Population>(current_pop));
 
       num_generations--;
     }

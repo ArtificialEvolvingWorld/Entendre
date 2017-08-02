@@ -8,6 +8,8 @@
 #include "Population.hh"
 #include "Timer.hh"
 
+#include "make_unique.hh"
+
 struct EachAnswer {
   EachAnswer(_float_ a, _float_ b)
     : a(a), b(b), correct_result(int(a)^int(b)),
@@ -121,7 +123,7 @@ int main() {
 
 
   std::function<std::unique_ptr<FitnessEvaluator>(void)> fitness_factory = [](){
-    return std::unique_ptr<FitnessEvaluator>(std::make_unique<XorFitness>());
+    return std::unique_ptr<FitnessEvaluator>(make_unique<XorFitness>());
   };
 
   for (generation = 0u; generation < max_generations; generation++) {

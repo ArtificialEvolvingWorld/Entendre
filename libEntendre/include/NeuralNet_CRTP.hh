@@ -1,4 +1,4 @@
-#pragma once
+83;40004;0c#pragma once
 #include "NeuralNet.hh"
 
 #include <vector>
@@ -11,6 +11,7 @@
 #include <string>
 #include <ostream>
 
+#include "make_unique.hh"
 
 
 template<typename T>
@@ -18,7 +19,7 @@ class NeuralNet_CRTP : public NeuralNet {
 public:
   virtual ~NeuralNet_CRTP() { ; }
   virtual std::unique_ptr<NeuralNet> clone() const {
-    return std::make_unique<T>(*static_cast<const T*>(this));
+    return make_unique<T>(*static_cast<const T*>(this));
   }
 
 

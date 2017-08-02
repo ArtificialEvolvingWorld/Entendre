@@ -1,10 +1,11 @@
 #pragma once
 #include "NeuralNet.hh"
 #include "Genome.hh"
+#include "make_unique.hh"
 
 template<typename NetType>
 std::unique_ptr<NeuralNet> BuildCompositeNet(const std::vector<Genome*>& genomes, bool hetero_inputs) {
-  std::unique_ptr<NeuralNet> net = std::make_unique<NetType>();
+  std::unique_ptr<NeuralNet> net = make_unique<NetType>();
 
   std::vector<std::unordered_set<unsigned int>> exclusion_lists(genomes.size());
 

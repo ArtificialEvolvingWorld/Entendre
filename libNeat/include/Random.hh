@@ -6,6 +6,7 @@
 #include <iostream>
 #include <queue>
 
+#include "make_unique.hh"
 
 class RNG {
 public:
@@ -21,15 +22,15 @@ public:
   RNG_MersenneTwister() {
     std::random_device rd;
     if (rd.entropy() != 0) {
-      mt = std::make_unique<std::mt19937>(rd());
+      mt = make_unique<std::mt19937>(rd());
     } else {
-      mt = std::make_unique<std::mt19937>
+      mt = make_unique<std::mt19937>
         (std::chrono::system_clock::now().time_since_epoch().count());
     }
   }
 
   RNG_MersenneTwister(unsigned long seed)
-    : mt(std::make_unique<std::mt19937>(seed)) { }
+    : mt(make_unique<std::mt19937>(seed)) { }
 
   virtual ~RNG_MersenneTwister() { }
 

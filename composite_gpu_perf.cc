@@ -10,6 +10,8 @@
 #include "dummy.hh"
 #include "ArgParser.hh"
 
+#include "make_unique.hh"
+
 auto population_from_xor_experiment(unsigned int pop_size = 2000, unsigned int num_generations=10) {
   auto seed = Genome::ConnectedSeed(2,1);
 
@@ -29,7 +31,7 @@ auto population_from_xor_experiment(unsigned int pop_size = 2000, unsigned int n
 
 
   for (unsigned int generation = 0u; generation < num_generations; generation++) {
-    pop = std::move(pop.Reproduce([](){return std::make_unique<XorFitness>();}));
+    pop = std::move(pop.Reproduce([](){return make_unique<XorFitness>();}));
 
   }
   return pop;
