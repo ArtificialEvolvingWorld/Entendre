@@ -16,15 +16,22 @@
 #include "ConcurrentGPUNeuralNet.hh"
 
 
+#include "cereal/cereal.hpp"
+#include "cereal/types/set.hpp"
+#include "cereal/types/vector.hpp"
+#include "cereal/types/utility.hpp"
+#include "cereal/types/unordered_map.hpp"
+#include <cereal/types/base_class.hpp>
+#include <cereal/access.hpp>
+
+
 struct NodeGene;
 struct ConnectionGene;
 
 class Genome : public uses_random_numbers,
                public requires<Probabilities> {
 
-  template<typename NetType>
-  friend std::unique_ptr<NeuralNet> BuildCompositeNet(const std::vector<Genome*>& genomes, bool hetero_inputs);
-
+  friend class cereal::access;
 
 public:
 
@@ -70,6 +77,8 @@ public:
   void AssertInputNodesFirst() const;
   void AssertNoConnectionsToInput() const;
 
+
+
 private:
   void MakeNet(NeuralNet& net) const;
 
@@ -111,8 +120,32 @@ private:
   /**
      If CPPNs are enabled, uses the relative probabilities of each
      possible node type.  Otherwise, returns a Sigmoid function.
-   */
+  */
   ActivationFunction GenerateActivationFunction();
+
+  /// Generates a compositional network from a list of Genomes
+  /**
+     Builds a composite neural network from a list of Genomes. If hetero_inputs is
+     true, the resulting networks will have num_inputs x N input nodes. Otherwise,
+     each network's inputs will be distributed from a single set of input nodes.
+  */
+  template<typename NetType>
+  friend std::unique_ptr<NeuralNet> BuildCompositeNet(const std::vector<Genome*>& genomes, bool hetero_inputs);
+
+  template<typename Archive>
+  void serialize(Archive& ar, std::uint32_t const version) {
+  assert(version==1);
+  ar( num_inputs,
+      num_outputs,
+      node_genes,
+      node_lookup,
+      connection_genes,
+      connection_lookup,
+      connections_existing,
+      last_innovation,
+      cereal::base_class< requires<Probabilities> >( this )
+   );
+  }
 
 private:
   size_t num_inputs;
@@ -127,6 +160,7 @@ private:
 
   // innovation record keeping
   unsigned long last_innovation;
+
 };
 
 
@@ -139,10 +173,21 @@ struct ConnectionGene {
   bool operator==(const ConnectionGene& other) {
     return (origin == other.origin) && (dest == other.dest);
   }
+
+  
+  template <class Archive>
+  void serialize( Archive & ar ) {
+    ar( innovation, origin, dest, weight, enabled );
+  }
+  
 };
 
 struct NodeGene {
-  NodeGene() = delete;
+
+  friend cereal::access;
+  
+  NodeGene() {;}
+  //NodeGene() = delete;
   NodeGene(NodeType type,
            ActivationFunction func = ActivationFunction::Sigmoid,
            unsigned long innovation = 0)
@@ -151,5 +196,15 @@ struct NodeGene {
   NodeType type;
   ActivationFunction func;
   unsigned long innovation;
+
+private:
+  
+  template <class Archive>
+  void serialize( Archive & ar ) {
+    ar( type, func, innovation );
+  }
+
 };
+
+CEREAL_CLASS_VERSION(Genome, 1)
 

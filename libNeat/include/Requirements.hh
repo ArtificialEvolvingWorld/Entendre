@@ -6,12 +6,18 @@
 
 #include "CPPNTypes.hh"
 
+#include <cereal/access.hpp>
+
 template <typename T>
 class requires {
 public:
   std::shared_ptr<T> required() const { return required_; }
   void required(const std::shared_ptr<T>& req) { required_ = req; }
 
+  template <class Archive>
+  void serialize( Archive & ar ) {
+    ar( required_ );
+  }
 protected:
   std::shared_ptr<T> required_;
 };
@@ -66,4 +72,44 @@ struct Probabilities {
   bool fixed_nursery_size = true;
   size_t number_of_children_given_in_nursery = 100;
   float species_survival_percentile = 0.3;
+
+private:
+  friend class cereal::access;
+
+  template <class Archive>
+  void serialize( Archive & ar ) {
+    ar(
+      population_size,
+      min_size_for_champion,
+      culling_ratio,
+      stale_species_num_generations,
+      necessary_species_improvement,
+      stale_species_penalty,
+      keep_empty_species,
+      species_representative_from_previous_gen,
+      matching_gene_choose_mother,
+      keep_non_matching_mother_gene,
+      keep_non_matching_father_gene,
+      mutation_prob_adjust_weights,
+      weight_mutation_is_severe,
+      weight_mutation_small_adjust,
+      weight_mutation_reset_range,
+      mutation_prob_add_connection,
+      new_connection_is_recurrent,
+      mutation_prob_add_node,
+      mutation_prob_reenable_connection,
+      mutation_prob_toggle_connection,
+      genetic_distance_structural,
+      genetic_distance_weights,
+      genetic_distance_species_threshold,
+      use_compositional_pattern_producing_networks,
+      cppn_odds,
+      nursery_age,
+      fixed_nursery_size,
+      number_of_children_given_in_nursery,
+      species_survival_percentile
+      );
+  }
 };
+
+

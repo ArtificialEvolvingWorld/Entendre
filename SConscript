@@ -5,6 +5,7 @@ Import('env')
 env.Append(CPPPATH=[Dir('include').RDirs('.')])
 env.Append(CPPPATH=['glog/include'])
 env.SharedLibraryDir('glog')
+env.Append(CPPPATH=['cereal/include'])
 
 env.SharedLibraryDir('libFeedForward')
 env.SharedLibraryDir('libEntendre', dependencies=['glog'])
