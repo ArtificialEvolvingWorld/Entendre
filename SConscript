@@ -1,7 +1,7 @@
 Import('env')
 
-env['CC'] = '/opt/intel/compilers_and_libraries_2017.4.196/linux/bin/intel64/icc'
-env['CXX'] = '/opt/intel/compilers_and_libraries_2017.4.196/linux/bin/intel64/icc'
+env['CC'] = 'icc'
+env['CXX'] = 'icc'
 
 
 #env.OptionalCUDA()
