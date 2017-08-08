@@ -133,18 +133,17 @@ private:
   friend std::unique_ptr<NeuralNet> BuildCompositeNet(const std::vector<Genome*>& genomes, bool hetero_inputs);
 
   template<typename Archive>
-  void serialize(Archive& ar, std::uint32_t const version) {
-  assert(version==1);
-  ar( num_inputs,
-      num_outputs,
-      node_genes,
-      node_lookup,
-      connection_genes,
-      connection_lookup,
-      connections_existing,
-      last_innovation,
-      cereal::base_class< requires<Probabilities> >( this )
-   );
+  void serialize(Archive& ar) {
+    ar( num_inputs,
+	num_outputs,
+	node_genes,
+	node_lookup,
+	connection_genes,
+	connection_lookup,
+	connections_existing,
+	last_innovation,
+	cereal::base_class< requires<Probabilities> >( this )
+     );
   }
 
 private:

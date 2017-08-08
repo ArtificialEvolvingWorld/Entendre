@@ -251,6 +251,8 @@ Population Population::Reproduce() {
   auto next_gen_species = MakeNextGenerationSpecies();
   auto next_gen_genomes = MakeNextGenerationGenomes();
 
+  // CommunicateAndRecieve(next_gen_genomes) ;
+
   Speciate(next_gen_species, next_gen_genomes);
 
   Population pop(next_gen_species, get_generator(), required());
