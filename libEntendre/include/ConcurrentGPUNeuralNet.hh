@@ -77,5 +77,6 @@ private:
 };
 
 #else
-typedef ConcurrentNeuralNet ConcurrentGPUNeuralNet;
+#include "ConcurrentKNLNeuralNet.hh"
+typedef ConcurrentKNLNeuralNet ConcurrentGPUNeuralNet;
 #endif

@@ -1,8 +1,8 @@
+#include "make_unique.hh"
 #include "PopulationBackgroundThread.hh"
 
 #include <iostream>
 
-#include "make_unique.hh"
 
 PopulationBackgroundThread::PopulationBackgroundThread(Population pop)
   : current_pop(pop), stop_worker(false), num_generations(0) {

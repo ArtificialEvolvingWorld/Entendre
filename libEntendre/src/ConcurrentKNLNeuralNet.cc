@@ -1,4 +1,4 @@
-#include "ConcurrentNeuralNet.hh"
+#include "ConcurrentKNLNeuralNet.hh"
 
 #include <cassert>
 #include <stdexcept>
@@ -15,10 +15,10 @@
 
 
 
-ConcurrentNeuralNet::~ConcurrentNeuralNet() {
+ConcurrentKNLNeuralNet::~ConcurrentKNLNeuralNet() {
 }
 
-ConcurrentNeuralNet::EvaluationOrder ConcurrentNeuralNet::compare_connections(const Connection& a, const Connection& b) {
+ConcurrentKNLNeuralNet::EvaluationOrder ConcurrentKNLNeuralNet::compare_connections(const Connection& a, const Connection& b) {
     // A recurrent connection must be used before the origin is overwritten.
   if (a.type == ConnectionType::Recurrent && a.origin == b.dest) { return EvaluationOrder::LessThan; }
   if (b.type == ConnectionType::Recurrent && b.origin == a.dest) { return EvaluationOrder::GreaterThan; }
@@ -51,7 +51,7 @@ ConcurrentNeuralNet::EvaluationOrder ConcurrentNeuralNet::compare_connections(co
   return EvaluationOrder::Unknown;
 }
 
-void ConcurrentNeuralNet::sort_connections(unsigned int first, unsigned int num_connections) {
+void ConcurrentKNLNeuralNet::sort_connections(unsigned int first, unsigned int num_connections) {
   if(connections_sorted) {
     return;
   }
@@ -129,7 +129,7 @@ void ConcurrentNeuralNet::sort_connections(unsigned int first, unsigned int num_
       // sort connections based on evaluation set number if not already done
       std::sort(connections.begin(),connections.end(),[](Connection a, Connection b){ return a.set < b.set; });
     }
-    // build struct of arrays for use on
+    // build struct of arrays for use on KNL
     for (auto i=0u; i<connections.size(); i++) {
       auto& conn = connections[i];
       connection_list.add(conn.origin,conn.dest,conn.weight);
@@ -140,7 +140,7 @@ void ConcurrentNeuralNet::sort_connections(unsigned int first, unsigned int num_
   }
 }
 
-void ConcurrentNeuralNet::ConcurrentNeuralNet::build_action_list() {
+void ConcurrentKNLNeuralNet::ConcurrentKNLNeuralNet::build_action_list() {
 
   unsigned int num_connection_sets = connections.back().set+1;
   std::vector<unsigned int> connection_set_sizes(num_connection_sets, 0);
@@ -240,7 +240,7 @@ void ConcurrentNeuralNet::ConcurrentNeuralNet::build_action_list() {
 
 ////////////////////////////////////////////////////////////////////////////
 
-void ConcurrentNeuralNet::add_node(NodeType type, ActivationFunction func) {
+void ConcurrentKNLNeuralNet::add_node(NodeType type, ActivationFunction func) {
   switch (type) {
   case NodeType::Bias:
     num_inputs++;
@@ -259,24 +259,24 @@ void ConcurrentNeuralNet::add_node(NodeType type, ActivationFunction func) {
     break;
   }
 
-  // Only sigmoid nodes implementated for ConcurrentNeuralNet
+  // Only sigmoid nodes implementated for ConcurrentKNLNeuralNet
   assert(func == ActivationFunction::Sigmoid);
 
 }
 
-_float_ sigmoid_host(_float_ val) {
+_float_ sigmoid(_float_ val) {
   return 1/(1 + std::exp(-val));
 }
 
-void clear_nodes_host(unsigned int* list, _float_* nodes, unsigned int n) {
+void clear_nodes(unsigned int* list, _float_* nodes, unsigned int n) {
   for(auto i=0u; i<n; i++) {
     nodes[list[i]] = 0;
   }
 }
 
-void sigmoid_nodes_host(unsigned int* list, _float_* nodes, unsigned int n) {
+void sigmoid_nodes(unsigned int* list, _float_* nodes, unsigned int n) {
   for(auto i=0u; i<n; i++) {
-    nodes[list[i]] = sigmoid_host(nodes[list[i]]);
+    nodes[list[i]] = sigmoid(nodes[list[i]]);
   }
 }
 
@@ -285,7 +285,19 @@ void sigmoid_nodes_host(unsigned int* list, _float_* nodes, unsigned int n) {
 
 
 
-void apply_connections_host(_float_* node, unsigned int* origin, unsigned int* dest, _float_* weight, unsigned int n) {
+
+
+
+
+#include <ittnotify.h>
+
+
+
+
+void apply_connections(_float_* node, unsigned int* origin, unsigned int* dest, _float_* weight, unsigned int n) {
+  __itt_resume();
+
+  #pragma omp parallel for simd
   for(auto i=0u; i<n; i++) {
     auto& conn_origin = origin[i];
     auto& conn_dest = dest[i];
@@ -298,6 +310,7 @@ void apply_connections_host(_float_* node, unsigned int* origin, unsigned int* d
       node[conn_dest] += conn_weight*node[conn_origin];
     }
   }
+  __itt_pause();
 }
 
 
@@ -312,7 +325,7 @@ void apply_connections_host(_float_* node, unsigned int* origin, unsigned int* d
 
 
 
-std::vector<_float_> ConcurrentNeuralNet::evaluate(std::vector<_float_> inputs) {
+std::vector<_float_> ConcurrentKNLNeuralNet::evaluate(std::vector<_float_> inputs) {
   assert(inputs.size() == num_inputs-1);
   sort_connections();
 
@@ -321,25 +334,25 @@ std::vector<_float_> ConcurrentNeuralNet::evaluate(std::vector<_float_> inputs) 
 
   auto i = 0u;
   int how_many_zero_out = action_list[i++];
-  clear_nodes_host(&action_list[i], nodes.data(), how_many_zero_out);
+  clear_nodes(&action_list[i], nodes.data(), how_many_zero_out);
   i += how_many_zero_out;
 
   int how_many_sigmoid = action_list[i++];
-  sigmoid_nodes_host(&action_list[i], nodes.data(), how_many_sigmoid);
+  sigmoid_nodes(&action_list[i], nodes.data(), how_many_sigmoid);
   i += how_many_sigmoid;
 
   int current_conn = 0;
   while(i<action_list.size()) {
     int how_many_conn = action_list[i++];
-    apply_connections_host(nodes.data(), &connection_list.origin[current_conn], &connection_list.dest[current_conn], &connection_list.weight[current_conn], how_many_conn);
+    apply_connections(nodes.data(), &connection_list.origin[current_conn], &connection_list.dest[current_conn], &connection_list.weight[current_conn], how_many_conn);
     current_conn += how_many_conn;
 
     int how_many_zero_out = action_list[i++];
-    clear_nodes_host(&action_list[i], nodes.data(), how_many_zero_out);
+    clear_nodes(&action_list[i], nodes.data(), how_many_zero_out);
     i += how_many_zero_out;
 
     int how_many_sigmoid = action_list[i++];
-    sigmoid_nodes_host(&action_list[i], nodes.data(), how_many_sigmoid);
+    sigmoid_nodes(&action_list[i], nodes.data(), how_many_sigmoid);
     i += how_many_sigmoid;
   }
 
@@ -348,7 +361,7 @@ std::vector<_float_> ConcurrentNeuralNet::evaluate(std::vector<_float_> inputs) 
 
 
 
-void ConcurrentNeuralNet::add_connection(int origin, int dest, _float_ weight, unsigned int set) {
+void ConcurrentKNLNeuralNet::add_connection(int origin, int dest, _float_ weight, unsigned int set) {
   if(would_make_loop(origin,dest,set)) {
     connections.emplace_back(origin,dest,ConnectionType::Recurrent,weight,set);
   } else {
@@ -356,7 +369,7 @@ void ConcurrentNeuralNet::add_connection(int origin, int dest, _float_ weight, u
   }
 }
 
-bool ConcurrentNeuralNet::would_make_loop(unsigned int i, unsigned int j, unsigned int set) {
+bool ConcurrentKNLNeuralNet::would_make_loop(unsigned int i, unsigned int j, unsigned int set) {
   // handle the case of a recurrent connection to itself up front
   if (i == j) { return true; }
 
@@ -462,9 +475,9 @@ bool ConcurrentNeuralNet::would_make_loop(unsigned int i, unsigned int j, unsign
   }
 }
 
-// TODO: implement gpu_smart_pointer to handle  memory according to RAII
+// TODO: implement gpu_smart_pointer to handle KNL memory according to RAII
 
-void ConcurrentNeuralNet::print_network(std::ostream& os) const {
+void ConcurrentKNLNeuralNet::print_network(std::ostream& os) const {
   std::stringstream ss; ss.str("");
   ss << "Action List: \n\n";
 

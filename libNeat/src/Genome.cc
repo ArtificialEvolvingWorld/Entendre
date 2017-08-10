@@ -1,3 +1,4 @@
+#include "make_unique.hh"
 #include "Genome.hh"
 
 #include <algorithm>
@@ -7,6 +8,7 @@
 #include <sstream>
 
 #include "Hash.hh"
+
 
 Genome::Genome() : num_inputs(0), num_outputs(0),
                    last_innovation(0) { }

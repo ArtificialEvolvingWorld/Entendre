@@ -1,3 +1,4 @@
+#include "make_unique.hh"
 #include "Population.hh"
 
 #include <algorithm>

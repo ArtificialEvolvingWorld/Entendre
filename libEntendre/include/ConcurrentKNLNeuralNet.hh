@@ -5,10 +5,10 @@
 #include <stdexcept>
 #include <functional>
 
-class ConcurrentNeuralNet : public NeuralNet {
+class ConcurrentKNLNeuralNet : public NeuralNet {
 public:
 
-  virtual ~ConcurrentNeuralNet();
+  virtual ~ConcurrentKNLNeuralNet();
 
   virtual void add_node(NodeType type, ActivationFunction func);
   virtual void add_connection(int origin, int dest, _float_ weight, unsigned int set=std::numeric_limits<unsigned int>::max());
@@ -17,7 +17,7 @@ public:
   virtual std::vector<_float_> evaluate(std::vector<_float_> inputs);
 
   virtual std::unique_ptr<NeuralNet> clone() const {
-    return std::unique_ptr<ConcurrentNeuralNet>(new ConcurrentNeuralNet(*this));
+    return std::unique_ptr<ConcurrentKNLNeuralNet>(new ConcurrentKNLNeuralNet(*this));
   }
   virtual void print_network(std::ostream& os) const;
 

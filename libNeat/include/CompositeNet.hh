@@ -1,7 +1,5 @@
 #pragma once
 #include "NeuralNet.hh"
-#include "Genome.hh"
-#include "make_unique.hh"
 
 template<typename NetType>
 std::unique_ptr<NeuralNet> BuildCompositeNet(const std::vector<Genome*>& genomes, bool hetero_inputs) {

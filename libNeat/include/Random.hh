@@ -6,8 +6,6 @@
 #include <iostream>
 #include <queue>
 
-#include "make_unique.hh"
-
 class RNG {
 public:
   virtual ~RNG() { }

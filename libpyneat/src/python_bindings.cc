@@ -1,6 +1,7 @@
 #include <memory>
 #include <sstream>
 
+#include "make_unique.hh"
 #include "ReachabilityChecker.hh"
 #include "Genome.hh"
 #include "NeuralNet.hh"

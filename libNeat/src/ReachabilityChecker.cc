@@ -1,3 +1,4 @@
+#include "make_unique.hh"
 #include "ReachabilityChecker.hh"
 
 #include <cassert>

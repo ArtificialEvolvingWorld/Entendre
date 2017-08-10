@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include "make_unique.hh"
 #include "Population.hh"
 #include "Timer.hh"
 

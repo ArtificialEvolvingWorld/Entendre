@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include <gtest/gtest.h>
-
+#include "make_unique.hh"
 #include "Genome.hh"
 #include "ConsecutiveNeuralNet.hh"
 

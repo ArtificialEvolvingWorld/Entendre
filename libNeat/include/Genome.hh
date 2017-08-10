@@ -11,9 +11,10 @@
 #include "Random.hh"
 #include "Requirements.hh"
 #include "ReachabilityChecker.hh"
-#include "ConsecutiveNeuralNet.hh"
-#include "ConcurrentNeuralNet.hh"
 #include "ConcurrentGPUNeuralNet.hh"
+#include "ConcurrentKNLNeuralNet.hh"
+#include "ConcurrentNeuralNet.hh"
+#include "ConsecutiveNeuralNet.hh"
 
 
 struct NodeGene;

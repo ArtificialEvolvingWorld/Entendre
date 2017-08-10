@@ -3,19 +3,17 @@
 #include <functional>
 #include <chrono>
 
-using namespace std;
-
 struct Timer {
-        Timer(function<void(long long)> callback)
+        Timer(std::function<void(long long)> callback)
                 : callback(callback)
-                , t0(chrono::high_resolution_clock::now()) { ; }
+                , t0(std::chrono::high_resolution_clock::now()) { ; }
         ~Timer(void) {
-                auto t1 = chrono::high_resolution_clock::now();
-                long long elapsed = chrono::duration_cast<chrono::nanoseconds>(t1-t0).count();
+                auto t1 = std::chrono::high_resolution_clock::now();
+                long long elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(t1-t0).count();
                 callback(elapsed);
         }
-        function<void(long long)> callback;
-        chrono::high_resolution_clock::time_point t0;
+        std::function<void(long long)> callback;
+        std::chrono::high_resolution_clock::time_point t0;
 
 };
 
