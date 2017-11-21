@@ -1,0 +1,11 @@
+digraph "libEntendre" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_0046457646a26b20011a0320efd87146 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_0046457646a26b20011a0320efd87146.html"];
+    dir_0046457646a26b20011a0320efd87146 [shape=plaintext label="libEntendre"];
+    dir_60ab3549268777df38bf9b9f2dc0b3e0 [shape=box label="include" color="black" fillcolor="white" style="filled" URL="dir_60ab3549268777df38bf9b9f2dc0b3e0.html"];
+    dir_26be09dfed5334972df21c3756db0da7 [shape=box label="src" color="black" fillcolor="white" style="filled" URL="dir_26be09dfed5334972df21c3756db0da7.html"];
+  }
+}

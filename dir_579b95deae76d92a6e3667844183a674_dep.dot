@@ -1,0 +1,10 @@
+digraph "libpyneat" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_579b95deae76d92a6e3667844183a674 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_579b95deae76d92a6e3667844183a674.html"];
+    dir_579b95deae76d92a6e3667844183a674 [shape=plaintext label="libpyneat"];
+    dir_eb94a951da13e7e451863e15899d14d3 [shape=box label="src" color="black" fillcolor="white" style="filled" URL="dir_eb94a951da13e7e451863e15899d14d3.html"];
+  }
+}
